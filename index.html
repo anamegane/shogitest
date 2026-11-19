@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>将棋雑学○×クイズ 全100問</title>
+  <style>
+    :root {
+      --bg: #f6f1e7;
+      --card: #fffdf9;
+      --ink: #231f20;
+      --sub: #5c5346;
+      --wood: #c89d54;
+      --wood-dark: #9c722c;
+      --accent: #b83227;
+      --blue: #1d5d9b;
+      --ok: #1b7a43;
+      --ng: #c0392b;
+      --border: #dfd3be;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+      background: radial-gradient(circle at top, #fbf7ef 0%, var(--bg) 100%);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+    }
+    .container {
+      width: 100%;
+      max-width: 640px;
+      margin: auto 0;
+    }
+    .card {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 20px;
+      box-shadow: 0 8px 24px rgba(60, 45, 20, 0.08);
+    }
+    .badge {
+      display: inline-block;
+      background: var(--wood);
+      color: #fff;
+      font-weight: bold;
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      letter-spacing: 0.05em;
+    }
+    h1 {
+      font-size: 24px;
+      margin: 12px 0 8px;
+      line-height: 1.35;
+    }
+    p.desc {
+      color: var(--sub);
+      font-size: 14px;
+      line-height: 1.65;
+      margin: 0 0 20px;
+    }
+    .stats-banner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      background: #faf5eb;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 18px;
+      text-align: center;
+    }
+    .stat-box {
+      padding: 4px;
+    }
+    .stat-label {
+      font-size: 11px;
+      color: var(--sub);
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .stat-val {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--wood-dark);
+    }
+    .stat-note {
+      grid-column: 1 / -1;
+      font-size: 11px;
+      color: var(--sub);
+      border-top: 1px dashed var(--border);
+      padding-top: 6px;
+      margin-top: 2px;
+    }
+    .mode-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    .btn {
+      appearance: none;
+      border: none;
+      border-radius: 12px;
+      padding: 15px 18px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.08s ease, opacity 0.15s ease, background 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary {
+      background: var(--wood-dark);
+      color: #fff;
+      box-shadow: 0 4px 0 #6e4e1a;
+    }
+    .btn-secondary {
+      background: #efe6d5;
+      color: var(--ink);
+      border: 1px solid var(--border);
+    }
+    .btn-x {
+      background: #0f1419;
+      color: #fff;
+    }
+    .progress-wrap {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: bold;
+      color: var(--sub);
+      margin-bottom: 8px;
+    }
+    .bar-bg {
+      width: 100%;
+      height: 8px;
+      background: #eadfce;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+    .bar-fill {
+      height: 100%;
+      background: var(--wood-dark);
+      width: 0%;
+      transition: width 0.25s ease;
+    }
+    .q-box {
+      font-size: 18px;
+      font-weight: bold;
+      line-height: 1.65;
+      min-height: 96px;
+      padding: 16px;
+      background: #faf5eb;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+    .ox-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .btn-o {
+      background: #fff;
+      color: var(--accent);
+      border: 2px solid var(--accent);
+      font-size: 28px;
+      padding: 16px;
+    }
+    .btn-o:hover { background: #fdf2f1; }
+    .btn-x-ans {
+      background: #fff;
+      color: var(--blue);
+      border: 2px solid var(--blue);
+      font-size: 28px;
+      padding: 16px;
+    }
+    .btn-x-ans:hover { background: #f0f6fc; }
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: default;
+      transform: none;
+    }
+    .feedback {
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 12px;
+      display: none;
+      animation: fadeIn 0.2s ease;
+    }
+    .feedback.ok {
+      background: #eaf7ef;
+      border: 1px solid #a8dec0;
+    }
+    .feedback.ng {
+      background: #fdeeee;
+      border: 1px solid #f2b8b5;
+    }
+    .judge {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+    .feedback.ok .judge { color: var(--ok); }
+    .feedback.ng .judge { color: var(--ng); }
+    .exp-text {
+      font-size: 14px;
+      line-height: 1.65;
+      color: var(--ink);
+      margin-bottom: 14px;
+    }
+    .result-score {
+      text-align: center;
+      padding: 16px;
+      background: #faf5eb;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      margin: 14px 0 18px;
+    }
+    .score-num {
+      font-size: 40px;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1.2;
+    }
+    .rank-label {
+      display: inline-block;
+      margin-top: 8px;
+      background: var(--wood-dark);
+      color: #fff;
+      padding: 5px 14px;
+      border-radius: 999px;
+      font-weight: bold;
+      font-size: 15px;
+    }
+    .review-list {
+      margin-top: 20px;
+      max-height: 320px;
+      overflow-y: auto;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+    }
+    .review-item {
+      font-size: 13px;
+      padding: 10px 0;
+      border-bottom: 1px dashed var(--border);
+      line-height: 1.55;
+    }
+    .tag-ok { color: var(--ok); font-weight: bold; }
+    .tag-ng { color: var(--ng); font-weight: bold; }
+    .hidden { display: none !important; }
+    footer {
+      margin-top: 16px;
+      font-size: 12px;
+      color: var(--sub);
+      text-align: center;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- スタート画面 -->
+    <div id="screen-start" class="card">
+      <span class="badge">一問一答・即時解説付き</span>
+      <h1>将棋雑学○×クイズ 全100問</h1>
+      <p class="desc">
+        ルール・戦法・歴史・棋士の名言・将棋メシ・最新事情まで、全100問の本格将棋雑学クイズに挑戦！1問ごとに正解と解説が表示されます。
+      </p>
+      <div class="stats-banner" id="stats-banner">
+        <div class="stat-box">
+          <div class="stat-label" id="stat-plays-label">挑戦者数</div>
+          <div class="stat-val" id="stat-plays">0 人</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label" id="stat-avg-label">みんなの平均点</div>
+          <div class="stat-val" id="stat-avg">-- 点</div>
+        </div>
+        <div class="stat-note" id="stat-note">※ 100点満点換算の平均スコアを表示</div>
+      </div>
+      <div class="mode-grid">
+        <button class="btn btn-primary" onclick="startQuiz(100, true)">🔀 全100問 シャッフルチャレンジに挑戦する</button>
+      </div>
+    </div>
+
+    <!-- クイズ画面 -->
+    <div id="screen-quiz" class="card hidden">
+      <div class="progress-wrap">
+        <span id="progress-text">第 1 問 / 100 問</span>
+        <span id="score-live">現在の正解数: 0</span>
+      </div>
+      <div class="bar-bg"><div id="bar-fill" class="bar-fill"></div></div>
+      <div id="q-box" class="q-box"></div>
+      <div class="ox-grid">
+        <button id="btn-true" class="btn btn-o" onclick="answer(true)">○</button>
+        <button id="btn-false" class="btn btn-x-ans" onclick="answer(false)">×</button>
+      </div>
+      <div id="feedback" class="feedback">
+        <div id="judge" class="judge"></div>
+        <div id="exp-text" class="exp-text"></div>
+        <button id="btn-next" class="btn btn-primary" style="width:100%;" onclick="nextQuestion()">次の問題へ →</button>
+      </div>
+    </div>
+
+    <!-- 結果画面 -->
+    <div id="screen-result" class="card hidden">
+      <span class="badge">結果発表</span>
+      <h1 id="result-title">お疲れさまでした！</h1>
+      <div class="result-score">
+        <div id="score-num" class="score-num">0 / 100 問正解</div>
+        <div id="score-rate" style="font-size:14px; color:var(--sub); margin-top:4px;">正答率 0%</div>
+        <div id="rank-label" class="rank-label">認定：将棋ファン</div>
+      </div>
+      <div class="mode-grid">
+        <button class="btn btn-x" onclick="shareOnX()">𝕏 結果をポストしてシェアする</button>
+        <button class="btn btn-primary" onclick="restartSameMode()">もう一度挑戦する（シャッフル）</button>
+        <button class="btn btn-secondary" onclick="backToTitle()">トップ画面に戻る</button>
+      </div>
+      <div class="review-list" id="review-list"></div>
+    </div>
+
+    <footer>将棋雑学○×クイズ（全100問収録）</footer>
+  </div>
+
+  <script>
+    const ALL_QUESTIONS = [{"id": 1, "q": "桐谷広人は2026年現在は現役を引退した棋士であり、現在は株式投資と株主優待の活用で脚光を浴びている。", "a": true, "exp": "桐谷広人七段は2007年に現役を引退した元プロ棋士で、引退後は膨大な銘柄の株主優待だけで生活するライフスタイルがメディアで取り上げられ脚光を浴びています。"}, {"id": 2, "q": "日本将棋連盟は、所属棋士の一般企業との兼業を認めていない。", "a": false, "exp": "プロ棋士は対局や普及活動に支障がない範囲で一般企業への就職や兼業が認められており、IT企業社員や大学教員、公認会計士などと兼業する棋士が多数存在します。"}, {"id": 3, "q": "「矢倉囲い」は、特に横からの飛車の攻めに対して非常に強い囲いとして知られている。", "a": false, "exp": "矢倉囲いは「上部からの攻め」には非常に強い反面、横からの攻めには弱い特徴があります。"}, {"id": 4, "q": "「順位戦」とは、フリークラス及び名人位を除いた日本将棋連盟に所属しているプロ棋士全員を順位づけし、「名人」への挑戦権を競うリーグ戦である。", "a": true, "exp": "順位戦は現役の名人およびフリークラス在籍棋士を除いた現役棋士全員が5つのクラスに分かれて1年かけて順位を競い、A級優勝者が名人挑戦権を得ます。"}, {"id": 5, "q": "「ゴキゲン中飛車」の命名は、この戦法を得意とする棋士の、対局中の態度を由来としている。", "a": true, "exp": "この戦法を創案・普及させた近藤正和七段が、対局中や勝利後にいつも上機嫌に振る舞い、周囲を明るくする態度から「ゴキゲン中飛車」と名付けられました。"}, {"id": 6, "q": "相居飛車の「四大戦法」とは、「角換わり」「相掛かり」「横歩取り」「矢倉」を指す言葉である。", "a": true, "exp": "相居飛車は「角換わり」「相掛かり」「横歩取り」「矢倉」の四大戦法とする分類が一般的です。"}, {"id": 7, "q": "角換わりにおける「4八金・2九飛車型」は、将棋ソフトの普及が進んだ2010年代に研究の進んだ戦法であり、2026年現在は角換わりの将棋の基本として扱われている。", "a": true, "exp": "AI研究により従来の「5八金・2八飛」に代わって主流となり、現代角換わりの基本形として定着しています。"}, {"id": 8, "q": "「路傍のフジイ」は、藤井猛九段を取り巻く複雑な人間模様をリアルに描写した、人間賛歌をテーマとした漫画作品である。", "a": false, "exp": "鍋倉夫の漫画『路傍のフジイ』は、独身中年男性・藤井守の静かな日常を描いたヒューマンドラマであり、藤井猛九段や将棋界とは無関係の作品です。"}, {"id": 9, "q": "羽生善治は、歴代の全ての棋士の中で最多のタイトルを取得する棋士であり、その取得数は100を超えている。", "a": false, "exp": "羽生善治九段は歴代最多のタイトル獲得数を誇りますが、通算獲得期数は99期であり100期には達していません。"}, {"id": 10, "q": "将棋の対局中に同じ局面（持ち駒・手番も含む）が4回現れると「千日手」となり、原則として先後を入れ替えて指し直しになる。", "a": true, "exp": "同一局面が4回出現すると千日手が成立します。"}, {"id": 11, "q": "横歩取りにおける「8五飛車戦法」は、中座真が考案した後手横歩取りの戦法である。", "a": true, "exp": "中座真八段が考案し、升田幸三賞を受賞した「中座飛車」として知られる画期的な戦法です。"}, {"id": 12, "q": "プロ棋士編入試験とは、対プロの棋戦で好成績を残したアマチュアに対して、現存する最古参の棋士との五番勝負に勝ち越すことで、プロ棋士としての権利を与えるものである。", "a": false, "exp": "試験官を務めるのは最古参ではなく、「棋士番号の大きい新鋭棋士5名」です。"}, {"id": 13, "q": "プロ棋士が対局中に食べる「将棋メシ（勝負めし）」として、各対局場の名物や出前メニューは大きな注目を集めており、対局の勝敗と同じくメディアやファンで話題になることが多い。", "a": true, "exp": "各対局場の名物メニューや「将棋メシ」の選択は、対局の勝敗と並んでファンやメディアの間で大いに注目される文化的名物となっています。"}, {"id": 14, "q": "日本将棋連盟の公式規定において、対局中に「待った」をした場合は反則負けとなるが、自分の駒を動かして手を離す前であれば、別のマス目へ動かし直すことは反則ではない。", "a": true, "exp": "公式規定では「着手完了」は「駒を盤上に置いて指を離した瞬間」と定められているため、指が離れる前であれば動かし直しても反則になりません。"}, {"id": 15, "q": "ドワンゴは、インターネットにおける将棋文化の醸成に寄与した企業の一つであり、2026年現在、「叡王戦」のメインスポンサーである。", "a": false, "exp": "ドワンゴは第1期〜第5期まで叡王戦を主催しましたが、2020年の第5期をもって主催を降りており、第6期以降は「不二家」がメインスポンサーを務めています。"}, {"id": 16, "q": "「位を取る」とは、自陣の歩を5段目に配置する事を指す。", "a": true, "exp": "歩を5段目まで進めて相手陣を圧迫することを「位を取る」といい、後ろから金銀で支える形は「位取り」と呼ばれます。"}, {"id": 17, "q": "「居飛車党」「振り飛車党」とは、将棋を指す人間の間での二大派閥であり、プロ間では「振り飛車党」の数が多い傾向にある。", "a": false, "exp": "プロ棋士の世界では圧倒的に「居飛車党」の割合が多く、振り飛車党は全体の2〜3割程度です。"}, {"id": 18, "q": "「升田幸三賞」は、将棋界において年間で最も多くの勝利を挙げた棋士に贈られる賞である。", "a": false, "exp": "「升田幸三賞」は、新手・妙手・画期的な戦法を考案し、将棋界に大きな影響を与えた棋士に贈られる賞です。"}, {"id": 19, "q": "「みろく庵」「ふじもと」は棋士の出前先の定番としての知名度が高い飲食店であるが、2026年現在はいずれも閉店・移転となっている。", "a": true, "exp": "旧将棋会館近くの出前定番店として親しまれた「みろく庵」は2019年3月末に閉店し、同じく定番の「ふじもと」も店舗老朽化などにより2021年に閉店・移転しており、旧来の店舗は2026年現在いずれも閉店・移転となっています。"}, {"id": 20, "q": "「相掛かり」の戦型において、先手が飛車先の歩を交換した後、2六に引かずに2四へ浮いて構える形は「浮き飛車」と呼ばれる。", "a": false, "exp": "2四の地点は相手の歩の頭であり、飛車を浮いて構える定位置は「2六」です。"}, {"id": 21, "q": "将棋の格言にある「桂の高跳び歩の餌食」とは、桂馬を安易に前へ跳ねると、相手の歩に攻められて取られやすくなるという意味である。", "a": true, "exp": "桂馬は前方に2マス進むと後ろに下がれない特性があるため、相手の歩に狙われると逃げ場がなくなりやすいことを戒めた格言です。"}, {"id": 22, "q": "「終盤は駒の損得より速度」という格言があるように、将棋の終盤戦においては「駒得」よりも「手番（速度）」が重要となるケースが多い。", "a": true, "exp": "終盤戦では駒得よりも相手玉を早く寄せる「手番」の方が重要になるケースが多くなります。"}, {"id": 23, "q": "将棋AIの普及によって現代将棋の定跡は大きく変化したが、「玉の堅さよりもバランスの良さ（陣形の広さや手得）を重視する傾向」が強まったことが特徴の一つである。", "a": true, "exp": "AIは玉を深く囲う手数を「手損」とシビアに評価するケースが多く、現代では4八金・2九飛型や雁木、中住まいなどのバランス型が主流となっています。"}, {"id": 24, "q": "将棋の基本ルールにおいて、同じ筋（縦の列）に自分の「と金」を2枚並べることは反則（二歩）になる。", "a": false, "exp": "「二歩」の反則が適用されるのは、成っていない「歩」が同じ筋に2枚ある場合のみです。成った後の「と金」であれば反則になりません。"}, {"id": 25, "q": "「嬉野流」は、プロ棋士によって考案された新戦法である。", "a": false, "exp": "「嬉野流」はアマチュア強豪の嬉野宏明氏が考案・体系化した戦法で、のちにプロの実戦でも採用されるようになりました。"}, {"id": 26, "q": "将棋をする際に使われる動詞は「指す」であり、「打つ」という言葉は対局の中で全く使われない。", "a": false, "exp": "対局全体を表す動詞は「指す」ですが、個別の手において「持ち駒を盤上に置くこと」は「打つ」と表現します。"}, {"id": 27, "q": "将棋の駒の動かし方において、「成香」「成桂」「成銀」の3つは、いずれも「金将」とまったく同じ動きをする。", "a": true, "exp": "飛車と角行を除く小駒が成ると、すべて「金将」とまったく同じ動きになります。"}, {"id": 28, "q": "奨励会は、日本将棋連盟によって定義されたプロ基準の棋力に基づく組織であり、その段級位はアマチュアのものとは大きな乖離が見られる。", "a": true, "exp": "「奨励会初段＝アマチュア全国大会レベル」と言われるほど大きな差があります。"}, {"id": 29, "q": "「角換わり腰掛け銀」において、先手・後手がまったく同じ駒組みを進めた場合、先手が１手パスをするような一見無駄に見える手を指すことで、後手に同型を打開させる戦術がある。", "a": true, "exp": "角換わり同型では先に動いた方が損をしやすいため、先手が手待ちをして後手に決断を迫る高度な駆け引きが存在します。"}, {"id": 30, "q": "「居角左美濃急戦」とは、相手の矢倉に対して強力な攻め筋を持つ、江戸時代に考案された戦法である。", "a": false, "exp": "平成後期にAIによって体系化された急戦策です。それまで主流となっていた従来の「相矢倉」は、本戦法の流行によって一時期プロの将棋から激減しました。"}, {"id": 31, "q": "『聖の青春』は、幼少期から難病（腎不全）と闘いながらも名人位を夢見て29歳で早世した棋士・村山聖の生涯を描いたノンフィクション作品である。", "a": true, "exp": "難病と闘いながらも名人位を目指して29歳で早世した村山聖の鬼気迫る人生を描いた、大崎善生の不朽の名作ノンフィクションです。"}, {"id": 32, "q": "谷川浩司は、永世名人の権利を保有する昭和後期を代表するプロ棋士であり、2026年現在は現役を引退している。", "a": false, "exp": "谷川浩司十七世名人は1983年に当時最年少の21歳2ヶ月で名人に就いたレジェンドですが、2026年現在も現役のプロ棋士として公式戦に出場し続けています。"}, {"id": 33, "q": "米長邦雄は将棋連盟会長に就任し、将棋におけるコンピューターの存在意義について高い問題意識を掲げた人物である。", "a": true, "exp": "連盟会長として2012年の第1回将棋電王戦に自ら引退棋士として出場するなど、人間とAIのあり方に強く向き合いました。"}, {"id": 34, "q": "「将棋大観」は、大山康晴によって製作された、駒落ち将棋の定跡を網羅的に示した著書である。", "a": false, "exp": "駒落ち定跡のバイブル『将棋大観』を著したのは、大山康晴ではなく木村義雄十四世名人です。"}, {"id": 35, "q": "日本将棋連盟が制定する公式なプロ棋士の段位において、最高段位は「九段」であり、十段戦などの過去の棋戦を除き「十段」というプロ段位は存在しない。", "a": true, "exp": "現在の日本将棋連盟におけるプロの最高段位は九段です。"}, {"id": 36, "q": "「序盤・中盤・終盤、隙が無い」とは、佐藤紳哉による羽生善治への評価である。", "a": false, "exp": "この名言を残したのは佐藤紳哉八段ですが、評価の対象は羽生善治ではなく、2013年NHK杯で対戦した豊島将之です。「豊島？強いよね」というインタビューで知られています。"}, {"id": 37, "q": "近年の将棋AI（水匠やdlshogiなど）の主流となっている評価関数には、従来の人間が手作業で重み付けを調整したものに代わり、ニューラルネットワーク（深層学習やNNUE）が用いられている。", "a": true, "exp": "NNUEやディープラーニング系の登場により、AIの局面評価精度は飛躍的に向上しました。"}, {"id": 38, "q": "奨励会には年齢制限の規定があり、原則として満21歳の誕生日までに初段、満26歳の誕生日を含む三段リーグ終了までに四段に昇段できない場合は退会となる。", "a": true, "exp": "奨励会には厳格な年齢制限があり、満21歳までに初段、満26歳までに四段へ昇段できなければ原則として退会となります。"}, {"id": 39, "q": "「藤井矢倉」とは、藤井猛が考案した居飛車の戦法である。", "a": true, "exp": "相矢倉の将棋に対するアイデアとして考案された戦法です。振り飛車党として有名な藤井猛九段ですが、一時期は居飛車を積極的に指していた時期がありました。"}, {"id": 40, "q": "将棋の公式戦における記録係（記録係を務める奨励会員）は、対局時計の管理や手数のカウントだけでなく、対局の棋譜を正確に記録する重要な役割を担っている。", "a": true, "exp": "記録係は奨励会員が担当し、秒読みの読み上げ、対局時計の管理、正確な棋譜の記録など対局運営の根幹を支えています。"}, {"id": 41, "q": "ノンフィクション作品『将棋の子』は、プロ棋士の夢を諦めて奨励会を去った若者たちの葛藤と、将棋に魅せられた人生の哀切を描いた傑作である。", "a": true, "exp": "プロになれず奨励会を去った者たちのその後の人生と、将棋という過酷な世界の本質を圧倒的な取材力で描いた大崎善生の代表作です。"}, {"id": 42, "q": "アマチュア棋戦であるアマチュア竜王戦、しんぶん赤旗全国囲碁・将棋大会等で好成績を残した出場者には、プロ棋士の参加する棋戦の予選への出場権利が与えられる。", "a": true, "exp": "「一次予選」への出場権が与えられます。"}, {"id": 43, "q": "永瀬拓矢が提唱した将棋における必勝法とは、「固い、攻めてる、切れない」である。", "a": false, "exp": "「固い、攻めてる、切れない」は主に木村一基九段の言葉として知られ、渡辺明九段らが紹介したことで広まった優勢の三原則です。"}, {"id": 44, "q": "「四間飛車」「中飛車」「三間飛車」「向かい飛車」は、いずれも振り飛車に分類される戦法である。", "a": true, "exp": "飛車を初期位置から左側へ移動させて戦う戦法の総称が「振り飛車」です。"}, {"id": 45, "q": "AI将棋における「評価値」とは、その局面における自分の「勝率」を数値化したものである。", "a": false, "exp": "「評価値」は形勢の有利・不利を表した数値であり、それを統計モデルで％変換したものが「勝率」です。"}, {"id": 46, "q": "加藤一二三は、昭和時代に歴代最年少で四段に到達した棋士である。", "a": true, "exp": "1954年に14歳7ヶ月で四段昇段。2016年に藤井聡太に破られるまで歴代最年少記録でした。"}, {"id": 47, "q": "「藤井システム」は、藤井聡太が提唱した居飛車穴熊崩しの手法である。", "a": false, "exp": "考案したのは藤井猛九段です。対居飛車穴熊の革命的な戦法として升田幸三賞を受賞しました。"}, {"id": 48, "q": "タイトル戦の一つである「竜王戦」のランキング戦は、1組から6組までのクラスに分かれてトーナメントを行い、各組の上位者が決勝トーナメントへ進出する仕組みである。", "a": true, "exp": "竜王戦のランキング戦は1組〜6組の6クラス制トーナメントで争われ、各組の上位者が本戦へ進出します。"}, {"id": 49, "q": "江戸時代に活躍した初代大橋宗桂から続く「家元三家」とは、「大橋本家」「大橋分家」「伊藤家」の三つを指す。", "a": true, "exp": "江戸幕府公認の将棋家元三家は、初代名人・大橋宗桂の「大橋本家」、その系譜の「大橋分家」、そして「伊藤家」の三家です。"}, {"id": 50, "q": "将棋の「プロ棋士（四段以上）」の中に長らく女性が存在しなかった理由としては、男女間の競技人口の差が主な要因とされている。", "a": true, "exp": "奨励会の門戸は男女問わず開かれていますが、競技人口・入門者数の男女比の圧倒的な差が最大の構造的要因とされています。"}, {"id": 51, "q": "現在の東京将棋会館は、メインスポンサーであるヒューリック株式会社によって建設された、日本将棋連盟専用の建築物である。", "a": false, "exp": "2024年秋に移転した新将棋会館は、複合ビル「ヒューリック将棋会館千駄ヶ谷ビル」の1階・2階に入居する形をとっており、連盟専用の単独建築物ではありません。"}, {"id": 52, "q": "HEROZ株式会社は、アプリ「将棋ウォーズ」を運営しており、アプリ内課金による利益を収益の軸としている。", "a": false, "exp": "HEROZ株式会社は将棋ウォーズを運営していますが、収益の軸は一般向けアプリ課金ではなく、将棋AI技術を応用した法人向け「AI事業」です。"}, {"id": 53, "q": "現在の「日本将棋連盟」の前身となる組織（東京将棋連盟）が結成されたのは、第二次世界大戦が終結した直後の1945年（昭和20年）のことである。", "a": false, "exp": "将棋界の統一組織である「東京将棋連盟」が発足したのは戦前の1924年です。"}, {"id": 54, "q": "明治から大正にかけて活躍し、「将棋界の近代化の父」とも呼ばれる坂田三吉（阪田三吉）は、その死後に将棋連盟から正式に「名人」の称号を贈られた棋士である。", "a": true, "exp": "生前は「関西名人」と称され正規の名人には就いておらず、死後の1955年に日本将棋連盟から「名人」の位を追贈されました。"}, {"id": 55, "q": "現在の将棋界におけるタイトル戦は全部で「八大タイトル」あり、その中でも「竜王戦」と「名人戦」が最高峰の棋戦とされている。", "a": true, "exp": "竜王・名人・王位・叡王・王座・棋王・王将・棋聖の8つが「八大タイトル」であり、序列では竜王と名人が最高位とされています。"}, {"id": 56, "q": "「詰めろ」とは、放置すると次の手で王将が「詰み」の状態になる局面のことである。", "a": true, "exp": "次に攻め方の手番が回ってきたときに相手玉を詰ますことができる状態を「詰めろ」と呼びます。"}, {"id": 57, "q": "将棋界をテーマにした羽海野チカの漫画『3月のライオン』では、主人公・桐山零を主人公とした、プロ棋士としての過酷な日常と温かな人間模様が描かれている。", "a": true, "exp": "プロ棋士の過酷な日常や、孤独を抱えながらも前を向く主人公・桐山零の成長と周囲の人々との温かな交流を描いた名作マンガです。"}, {"id": 58, "q": "詰将棋のルールでは、攻め方は原則として「王手の連続」で玉を追い詰めなければならず、王手ではない手（必至など）を指すことはできない。", "a": true, "exp": "詰将棋では「攻め方はすべて王手で指す」「受け方は最も長く手数がかかる逃げ方をする」という大原則があります。"}, {"id": 59, "q": "駒落ち将棋における「飛車落ち」とは、下手側の駒台に「飛車」が最初からあるものとして行う、棋力に差がある2者が行う対局ルールである。", "a": false, "exp": "落とした駒は盤上から取り除かれ、どちらの駒台にも乗っていない状態で始めます。"}, {"id": 60, "q": "藤井聡太は、将棋界隈で初の「永世七冠」を達成した棋士である。", "a": false, "exp": "史上初の「永世七冠」達成者は羽生善治九段です。藤井聡太竜王・名人は史上初の「八冠全制覇」を達成しました。"}, {"id": 61, "q": "西山朋佳は、女性で初めて「プロ棋士（四段）」になる規定・資格を満たし、史上初の女性棋士となることが決定した棋士である。", "a": true, "exp": "2026年10月に女流最高位「白玲」を通算5期獲得して新規定による棋士編入資格を得ました。その後、本人より編入資格を行使するとの発表がなされています。"}, {"id": 62, "q": "将棋のルールでは、歩や香車を敵陣1段目に進める際や、桂馬を敵陣1・2段目に進める際は、必ず「成る」必要があり、成らないと「行き所のない駒」として反則になる。", "a": true, "exp": "次に進むマス目が盤上からなくなる位置へ進む際は必ず成らなければならず、不成を選ぶと反則負けとなります。"}, {"id": 63, "q": "一般的な将棋アプリの段位は、アプリ内での相対的な棋力を示したものであり、プロ基準の段位との間には、大きな隔たりがある。", "a": true, "exp": "アプリの段位はユーザー内の相対評価であり、プロの段位基準とは全く異なります。"}, {"id": 64, "q": "chatGPT、Gemini等のチャットAIは、将棋の専用AIである「水匠」「翡水」に引けを取らない高精度な棋譜の検討が可能である。", "a": false, "exp": "ChatGPTやGeminiなどの汎用大規模言語モデルは自然言語処理に特化しており、何千万局面も先読み・評価する「水匠」や「翡水」などの専用将棋AIのような高精度な棋譜検討・読み筋解析はできません。"}, {"id": 65, "q": "対局中に同一局面が4回現れて千日手が成立した場合でも、それが一方の「連続王手」によるものであった場合は、王手をかけ続けていた側の反則負けとなる。", "a": true, "exp": "通常の千日手は指し直しになりますが、同一局面の出現が一方の連続王手によるものである場合は、王手をかけていた側の反則負けとなります。"}, {"id": 66, "q": "藤井聡太は、将棋AIの活用について「AIの評価値（数値）そのものを丸暗記することが最も重要であり、読み筋の検討は必要ない」というスタンスをとっている。", "a": false, "exp": "藤井聡太は評価値の数字だけでなく、「なぜAIがその手を選んだのかという意図や読み筋を深く掘り下げて理解すること」を重視しています。"}, {"id": 67, "q": "「銀冠」は、高い玉の安定度と上部への頑強さを強みとした、振り飛車特有の囲いである。", "a": false, "exp": "銀冠は美濃囲いから発展させる振り飛車の囲いとして有名ですが、矢倉や左美濃などから居飛車側が組む「矢倉銀冠」「居飛車銀冠」もあり、振り飛車特有の囲いではありません。"}, {"id": 68, "q": "「4六銀左急戦」は、対四間飛車に対して提唱された居飛車の急戦策である。", "a": true, "exp": "舟囲いから左銀を4六へ繰り出して3五歩と仕掛ける、対四間飛車急戦の王道戦法です。"}, {"id": 69, "q": "米長邦雄は、常に型にはまった生真面目な優等生タイプの棋士であり、棋士としてだけではなく、1人の人間として模範とすべき人格者として知られている。", "a": false, "exp": "卓越した棋力と連盟会長としての実行力を持ちつつも、歯に衣着せぬ言動やユニークで破天荒なエピソードが多く、個性派として知られました。"}, {"id": 70, "q": "奨励会三段リーグは、日本全国の三段に昇段した奨励会員が優劣を競う場であり、四段への昇格は、リーグ内での勝率によって定められている。", "a": false, "exp": "一定の勝率ではなく、半年間のリーグ戦における順位によって四段昇格が決まります。"}, {"id": 71, "q": "山形県天童市は、国内を代表する将棋駒の産地である。", "a": true, "exp": "山形県天童市は江戸時代末期から続く日本最大の将棋駒の産地であり、全国の将棋駒生産量の約9割以上を占めています。"}, {"id": 72, "q": "「穴熊」とは、自玉を盤面の片隅に配置した囲いであり、自玉の「遠さ」を強みとした囲いである。", "a": true, "exp": "盤面の隅に玉を潜り込ませることで、相手の攻め駒から最も遠い位置をキープします。"}, {"id": 73, "q": "将棋界の「名人」は江戸時代から終身制（世襲制）であったが、1935年（昭和10年）に十三世名人・関根金次郎が自ら名人位を退く決断をしたことで、実力制名人戦が誕生した。", "a": true, "exp": "終身制だった名人位を十三世名人・関根金次郎が返上したことで実力制名人戦が創設され、1937年に木村義雄が初代実力制名人に就きました。"}, {"id": 74, "q": "将棋のタイトル戦における「永世称号」の資格は、原則として規定の回数を達成した瞬間に与えられ、現役中から「永世名人」や「永世竜王」を名乗ることができる。", "a": false, "exp": "永世称号は条件を満たすと「資格」を獲得できますが、正式に名乗ることができるのは原則として「現役を引退した後」です。"}, {"id": 75, "q": "「持将棋（じしょうぎ）」の成立判定に用いられる点数計算（27点法・24点法）において、大駒（飛・角）は1枚5点、小駒（金・銀・桂・香・歩）はすべて1枚1点として計算される。", "a": true, "exp": "持将棋の点数計算では、飛車・角行は5点、金・銀・桂・香・歩はすべて1点、玉は0点で計算します。"}, {"id": 76, "q": "プロ棋士の公式戦において、先手番と後手番は対局者の話し合いによって自由に決めることができる。", "a": false, "exp": "公式戦の手番は「振り駒」、または番勝負・リーグ戦の規定によって決まります。"}, {"id": 77, "q": "藤井猛が定義した「ファミレスの鰻」とは、「居飛車党が指す四間飛車」である。", "a": true, "exp": "普段居飛車を指す棋士がたまに指す四間飛車を「専門店の鰻ではなく、ファミレスの鰻のようなもの」と評した藤井猛九段の名言です。"}, {"id": 78, "q": "プロ棋士の順位戦において、最高峰の「A級」に在籍できる人数は、原則として10名と定められている。", "a": true, "exp": "順位戦のA級は原則定員10名で構成され、総当たりリーグを戦って優勝者が名人挑戦権を獲得し、下位2名が降級します。"}, {"id": 79, "q": "「角不成」は、意図して敵陣に侵入した角を成らない行為で、一般的にはマナー違反とされるが、プロの対局で故意に行われた前例がある。", "a": true, "exp": "2021年11月の第47期棋王戦挑戦者決定トーナメントで、広瀬八段が打ち歩詰めを誘発する高度な戦術的理由から故意に「▲1一角不成」を指した実例などがあります。"}, {"id": 80, "q": "公式戦の対局中、対局者が自分の持ち時間をすべて使い切った後の「1分将棋（秒読み）」では、60秒未満に指せば何度でも持ち時間が60秒にリセットされる。", "a": true, "exp": "1分将棋では、60秒が経過する前に着手すれば次の手番でも再び60秒の秒読みが与えられます。"}, {"id": 81, "q": "「底歩」とは、持ち駒の歩を自陣の最下段に打つ事を指し、手前に銀を配置した形は「岩より硬し」と評されることがある。", "a": false, "exp": "底歩の手前に配置して「岩より堅し」と評されるのは銀ではなく「金」です。"}, {"id": 82, "q": "「叡王戦」は、プロ棋士の段位毎に予選のリーグ分けを行う棋戦であり、2026年現在、現存する最新のタイトル戦である。", "a": true, "exp": "2015年創設の最も新しいタイトル戦で、予選が段位別に行われるのが特徴です。"}, {"id": 83, "q": "プロ棋士の中には将棋以外の分野でも活躍する人物が多く、中でも鈴木大介は「ポケモンカード」の実力者として活躍している。", "a": false, "exp": "鈴木大介九段がプロとして活躍している他分野はポケモンカードではなく「競技麻雀」です。"}, {"id": 84, "q": "「打ち歩詰め」は反則であるが、盤上にある歩を突いて相手の玉を詰ませる「突き歩詰め」は反則ではない。", "a": true, "exp": "持ち駒の歩を打って即座に詰ませる「打ち歩詰め」は禁じ手ですが、盤面にある歩を進めて詰ませる「突き歩詰め」は有効です。"}, {"id": 85, "q": "将棋の対局においては、自玉に明らかな詰みがある場合でも投了せずに最後まで指し続ける、「1手詰めまで指す」姿勢が尊いものとされている。", "a": false, "exp": "勝ち目がないと判断した時点で潔く負けを認める「投了」が礼儀・マナーとされています。"}, {"id": 86, "q": "「81Dojo」は海外の将棋ファンに人気の将棋カフェである。", "a": false, "exp": "「81Dojo」は実店舗のカフェではなく、多言語に対応した世界最大級のオンライン将棋対局サイトです。"}, {"id": 87, "q": "「将棋倶楽部24」は、インターネット黎明期からオンライン将棋界を牽引したWebサイトであるが、2026年現在は完全閉鎖となっている。", "a": true, "exp": "1998年に開設され、ネット将棋黎明期から強豪やプロも集う老舗対局サイトとして親しまれましたが、2025年12月末をもってサービスを終了しました。"}, {"id": 88, "q": "奨励会三段リーグにおいて、「次点」を2回取得した者は昇段となり、順位戦への参加権が与えられる。", "a": true, "exp": "従来は「フリークラス編入」となっていましたが、2026年6月の日本将棋連盟通常総会での奨励会規定改定により、2026年10月開始の三段リーグから「次点2回による四段昇段者も順位戦入り」となる制度へ変更されました。"}, {"id": 89, "q": "ABEMA（旧AbemaTV）の将棋チャンネルでは、タイトル戦の対局をリアルタイムの生中継であれば無料で視聴することができる。", "a": true, "exp": "ABEMAの将棋チャンネルでは、八大タイトル戦などの公式戦をリアルタイムの生中継であれば会員登録不要・無料で視聴できます。"}, {"id": 90, "q": "プロ棋士の棋戦における棋譜を第三者がSNSに掲載することは、日本将棋連盟の規約に抵触する場合がある。", "a": true, "exp": "棋譜自体は著作権の対象外ですが、日本将棋連盟の「棋譜利用のガイドライン」により、対局中のリアルタイム配信や無断転載などは制限・禁止されており、規約に抵触する場合があります。"}, {"id": 91, "q": "「どうぶつしょうぎ」における駒の種類は、「ライオン」「キリン」「ゾウ」「ひよこ」の4種類である。", "a": true, "exp": "初期配置で使う基本の駒は「ライオン」「キリン」「ゾウ」「ひよこ」の4種類です。"}, {"id": 92, "q": "「王手」とは、王将に対して駒の効きを重ねる指し手であり、対面での対局においては、必ず声に出して宣言しなければならない。", "a": false, "exp": "将棋の公式ルールでは「王手」を発声する義務はありません。"}, {"id": 93, "q": "奨励会に入会するために必要な「師匠」になれるのは、原則現役棋士に限られる。", "a": false, "exp": "奨励会の受験推薦は「四段以上のプロ棋士」であれば可能であり、現役棋士だけでなく引退棋士も師匠になることができます。"}, {"id": 94, "q": "脚付将棋盤の裏側中央にある四角錐状の窪みは、江戸時代の俗説・逸話に由来した、「血溜まり」の俗称を持つ。", "a": true, "exp": "本来の正式名称は「音受け」で、駒音の響きを良くしたり木材のひび割れを防いだりする役割がありますが、「対局に口出しした者の首をはねて載せた」という江戸時代の俗説・逸話に由来して「血溜まり」の俗称で呼ばれます。"}, {"id": 95, "q": "将棋の駒の工法の内、「盛上駒」は最も高級品とされている。", "a": true, "exp": "駒の製法には「書き駒」「彫り駒」「彫埋駒」「盛上駒」があり、彫埋駒の文字の上にさらに漆を立体的に盛り上げて仕上げる「盛上駒」が最高級品とされ、タイトル戦などでも使用されます。"}, {"id": 96, "q": "鹿児島県指宿市は、将棋のタイトル戦の開催地として高い知名度を持ち、棋士が「足湯」に入ることが定番となっている。", "a": false, "exp": "指宿市は竜王戦などの開催地として有名ですが、棋士が入るのが定番となっているのは「足湯」ではなく、指宿名物の「砂むし温泉」です。"}, {"id": 97, "q": "将棋における「棋譜並べ」とは、歴代の名局の棋譜を集約して短時間で熟読することを指し、将棋の上達のために大事な練習方法とされている。", "a": false, "exp": "「棋譜並べ」とは、棋譜を単に熟読することではなく、実際に将棋盤を使って棋譜の記録通りに初手から1手ずつ駒を動かして再現する上達法です。"}, {"id": 98, "q": "「相手の大一番こそ全力で戦うこと」とは、中原誠が提唱した将棋における勝負の哲学である。", "a": false, "exp": "この勝負哲学を提唱・実践したのは、中原誠十六世名人ではなく米長邦雄永世棋聖です。自分の昇級やタイトルに関わらない対局であっても、相手にとっての大一番では決して手を抜かず全力で立ち向かう姿勢を貫きました。"}, {"id": 99, "q": "佐藤康光は、その棋風の緻密さから「1秒間に1億と1手を読む男」との通称がある。", "a": false, "exp": "「緻密流」として知られる佐藤康光九段が、インタビューで「どれくらい読むのか」と問われた際に「1億と3手」と答えた有名なエピソードがあります。"}, {"id": 100, "q": "プロ棋士の対局では、離席は原則認められず、盤面を逆の視点で見るために対局相手の後ろに立つ行為は、即座に反則負けの対象となる。", "a": false, "exp": "プロ棋士の公式戦では対局中の離席が認められており、盤面を逆の視点から客観的に見るために対局相手の後ろに立って盤面を眺める行為も反則ではなく正当な行為として認められています。加藤一二三九段が対局相手の後ろに立って盤面を覗き込む姿は「ひふみんアイ」と呼ばれ、将棋界の有名な名物となっています。"}];
+
+    let currentList = [];
+    let currentIndex = 0;
+    let score = 0;
+    let history = [];
+    let lastMode = { count: 100, shuffle: true };
+
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function startQuiz(count = 100, forceShuffle = true) {
+      const isShuffle = true;
+      lastMode = { count: ALL_QUESTIONS.length, shuffle: isShuffle };
+      currentList = shuffleArray(ALL_QUESTIONS);
+      currentIndex = 0;
+      score = 0;
+      history = [];
+
+      document.getElementById('screen-start').classList.add('hidden');
+      document.getElementById('screen-result').classList.add('hidden');
+      document.getElementById('screen-quiz').classList.remove('hidden');
+      renderQuestion();
+    }
+
+    function restartSameMode() {
+      startQuiz(lastMode.count, lastMode.shuffle);
+    }
+
+    function backToTitle() {
+      document.getElementById('screen-quiz').classList.add('hidden');
+      document.getElementById('screen-result').classList.add('hidden');
+      document.getElementById('screen-start').classList.remove('hidden');
+    }
+
+    function renderQuestion() {
+      const total = currentList.length;
+      const item = currentList[currentIndex];
+      document.getElementById('progress-text').textContent = `第 ${currentIndex + 1} 問 / ${total} 問`;
+      document.getElementById('score-live').textContent = `現在の正解数: ${score}`;
+      document.getElementById('bar-fill').style.width = `${(currentIndex / total) * 100}%`;
+      document.getElementById('q-box').textContent = `Q${currentIndex + 1}. ${item.q}`;
+
+      document.getElementById('btn-true').disabled = false;
+      document.getElementById('btn-false').disabled = false;
+      const fb = document.getElementById('feedback');
+      fb.style.display = 'none';
+      fb.className = 'feedback';
+      document.getElementById('btn-next').textContent = (currentIndex + 1 === total) ? '結果を見る →' : '次の問題へ →';
+    }
+
+    function answer(userChoice) {
+      const item = currentList[currentIndex];
+      const isCorrect = (userChoice === item.a);
+      if (isCorrect) score++;
+
+      history.push({
+        q: item.q,
+        correctAns: item.a,
+        userAns: userChoice,
+        isCorrect,
+        exp: item.exp
+      });
+
+      document.getElementById('btn-true').disabled = true;
+      document.getElementById('btn-false').disabled = true;
+      document.getElementById('score-live').textContent = `現在の正解数: ${score}`;
+
+      const fb = document.getElementById('feedback');
+      const judge = document.getElementById('judge');
+      fb.className = 'feedback ' + (isCorrect ? 'ok' : 'ng');
+      judge.textContent = isCorrect
+        ? `⭕ 正解！（答え：${item.a ? '○' : '×'}）`
+        : `❌ 不正解…（正解は「${item.a ? '○' : '×'}」）`;
+      document.getElementById('exp-text').textContent = item.exp;
+      fb.style.display = 'block';
+    }
+
+    function nextQuestion() {
+      currentIndex++;
+      if (currentIndex < currentList.length) {
+        renderQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function getRank(rate) {
+      if (rate === 100) return '永世竜王・永世名人級（全問正解！）';
+      if (rate >= 90) return 'A級八段〜九段クラス（将棋雑学マスター）';
+      if (rate >= 75) return 'B級〜奨励会三段クラス（かなりの観る将・指す将）';
+      if (rate >= 55) return 'アマ初段〜三段クラス（将棋通）';
+      return '駒落ち修行中（解説を読んで再挑戦！）';
+    }
+
+    // ★ 全挑戦者のリアルタイム集計を行う場合は、Google Apps Script等のWebアプリURLをここに設定
+    const STATS_API_URL = "";
+    const STORAGE_KEY = "shogi_quiz_100_stats_v1";
+
+    function loadLocalStats() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return { plays: 0, totalRate: 0, totalScore: 0, totalQuestions: 0 };
+        return JSON.parse(raw);
+      } catch (e) {
+        return { plays: 0, totalRate: 0, totalScore: 0, totalQuestions: 0 };
+      }
+    }
+
+    function saveLocalStats(scoreVal, totalVal, rateVal) {
+      try {
+        const st = loadLocalStats();
+        st.plays += 1;
+        st.totalRate += rateVal;
+        st.totalScore += scoreVal;
+        st.totalQuestions += totalVal;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(st));
+        return st;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    async function refreshStatsDisplay() {
+      const playsEl = document.getElementById('stat-plays');
+      const avgEl = document.getElementById('stat-avg');
+      const playsLabel = document.getElementById('stat-plays-label');
+      const avgLabel = document.getElementById('stat-avg-label');
+      const noteEl = document.getElementById('stat-note');
+
+      playsLabel.textContent = '挑戦者数';
+      avgLabel.textContent = 'みんなの平均点';
+
+      if (STATS_API_URL) {
+        noteEl.textContent = '※ Xからの全挑戦者のリアルタイム集計（100点満点換算）';
+        try {
+          const res = await fetch(STATS_API_URL);
+          const data = await res.json();
+          const count = Number(data.plays || 0);
+          const avgRate = count > 0 ? Math.round(Number(data.avgRate || 0)) : null;
+          playsEl.textContent = `${count.toLocaleString()} 人`;
+          avgEl.textContent = avgRate !== null ? `${avgRate} 点` : '-- 点';
+          return;
+        } catch (e) {
+          noteEl.textContent = '※ 集計サーバー未接続のため端末内記録を表示中';
+        }
+      }
+
+      const local = loadLocalStats();
+      playsEl.textContent = `${local.plays.toLocaleString()} 人`;
+      if (local.plays > 0) {
+        const avg = Math.round(local.totalRate / local.plays);
+        avgEl.textContent = `${avg} 点`;
+      } else {
+        avgEl.textContent = '-- 点';
+      }
+    }
+
+    async function recordResult(scoreVal, totalVal, rateVal) {
+      saveLocalStats(scoreVal, totalVal, rateVal);
+      if (STATS_API_URL) {
+        try {
+          await fetch(STATS_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ score: scoreVal, total: totalVal, rate: rateVal })
+          });
+        } catch (e) {
+          // 通信失敗時もローカル記録は保持
+        }
+      }
+      await refreshStatsDisplay();
+    }
+
+    function showResult() {
+      document.getElementById('screen-quiz').classList.add('hidden');
+      document.getElementById('screen-result').classList.remove('hidden');
+
+      const total = currentList.length;
+      const rate = Math.round((score / total) * 100);
+      const rank = getRank(rate);
+
+      recordResult(score, total, rate);
+
+      document.getElementById('score-num').textContent = `${score} / ${total} 問正解`;
+      document.getElementById('score-rate').textContent = `正答率 ${rate}%`;
+      document.getElementById('rank-label').textContent = `認定：${rank}`;
+
+      const reviewEl = document.getElementById('review-list');
+      reviewEl.innerHTML = '<div style="font-weight:bold; margin-bottom:8px;">▼ 今回の解答一覧</div>' +
+        history.map((h, i) => `
+          <div class="review-item">
+            <span class="${h.isCorrect ? 'tag-ok' : 'tag-ng'}">${h.isCorrect ? '⭕' : '❌'} Q${i + 1}.</span>
+            ${h.q}<br/>
+            <span style="color:var(--sub);">正解：${h.correctAns ? '○' : '×'} ／ あなたの回答：${h.userAns ? '○' : '×'}</span>
+          </div>
+        `).join('');
+    }
+
+    // 初期表示時に集計を読み込み
+    refreshStatsDisplay();
+
+    function shareOnX() {
+      const total = currentList.length;
+      const rate = Math.round((score / total) * 100);
+      const rank = getRank(rate);
+      const url = window.location.href.startsWith('http') ? window.location.href : '';
+      const text = `【将棋雑学○×クイズ】\n${total}問中 ${score}問正解（正答率${rate}%）でした！\n認定：${rank}\n#将棋クイズ #将棋`;
+      const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}${url ? '&url=' + encodeURIComponent(url) : ''}`;
+      window.open(shareUrl, '_blank', 'noopener,noreferrer');
+    }
+  </script>
+</body>
+</html>
